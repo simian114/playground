@@ -10,20 +10,43 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
+import environ
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# env
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+environ.Env.read_env(os.path.join(BASE_DIR, 'env/.env'))
+
+# shell 의에서 값 가져옴
+ENVIRONMENT = os.getenv('ENV', 'local')
+
+if ENVIRONMENT == 'staging':
+    environ.Env.read_env(os.path.join(BASE_DIR, '.env.staging'))  # 스테이징 덮어쓰기
+elif ENVIRONMENT == 'production':
+    environ.Env.read_env(os.path.join(BASE_DIR, '.env.staging'))  # 스테이징 로드 후
+    environ.Env.read_env(os.path.join(BASE_DIR, '.env.production'))  # 프로덕션 덮어쓰기
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-s#7g!ag#0_49pn#soq-wi_ak_=j5u2ys@b=gr*!z91^0b8cgbg"
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
+
+SITE_ID = 1
 
 ALLOWED_HOSTS = []
 
